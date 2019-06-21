@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
 using Consul;
@@ -39,6 +41,21 @@ namespace SchoolAPI.Infrastructure
             var addresses = features.Get<IServerAddressesFeature>();
             var address = addresses.Addresses.First();
 
+            var machineName = System.Environment.MachineName;
+            var aa = Dns.GetHostName();
+            var host = NetworkInterface.GetAllNetworkInterfaces()
+                .SelectMany(i => i.GetIPProperties().UnicastAddresses)
+                .Select(a => a.Address)
+                .Where(a => a.IsIPv6LinkLocal)
+                .ToList();
+
+
+            var host2 = NetworkInterface.GetAllNetworkInterfaces()
+              .Select(p => p.GetIPProperties())
+              .SelectMany(p => p.UnicastAddresses)
+              .Where(p => p.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork && !System.Net.IPAddress.IsLoopback(p.Address))
+              .FirstOrDefault()?.Address.ToString();
+
             var uri = new Uri(address);
             _registrationID = $"{_consulConfig.Value.ServiceID}-{uri.Port}";
 
@@ -46,7 +63,7 @@ namespace SchoolAPI.Infrastructure
             {
                 ID = _registrationID,
                 Name = _consulConfig.Value.ServiceName,
-                Address = $"{uri.Scheme}://{uri.Host}",
+                Address = $"{uri.Scheme}://{host2}",
                 Port = uri.Port,
                 Tags = new[] { "Students", "Courses", "School" }
             };

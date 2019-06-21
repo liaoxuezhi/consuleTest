@@ -26,6 +26,7 @@ namespace SchoolAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<DataStore>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IHostedService, ConsulHostedService>();
             services.Configure<ConsulConfig>(Configuration.GetSection("consulConfig"));
             services.AddSingleton<IConsulClient, ConsulClient>(p => new ConsulClient(consulConfig =>

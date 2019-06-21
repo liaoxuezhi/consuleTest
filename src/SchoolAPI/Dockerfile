@@ -4,10 +4,10 @@ EXPOSE 80
 
 FROM microsoft/dotnet:2.2-sdk AS build
 WORKDIR /src
-COPY ["src/SchoolAPI/SchoolAPI.csproj", "src/SchoolAPI/"]
+COPY ["SchoolAPI.csproj", "src/SchoolAPI/"]
 RUN dotnet restore "src/SchoolAPI/SchoolAPI.csproj"
 COPY . .
-WORKDIR "/src/src/SchoolAPI"
+WORKDIR "/src/SchoolAPI"
 RUN dotnet build "SchoolAPI.csproj" -c Release -o /app
 
 FROM build AS publish
