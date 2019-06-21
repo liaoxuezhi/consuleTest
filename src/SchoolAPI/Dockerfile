@@ -6,8 +6,8 @@ FROM microsoft/dotnet:2.2-sdk AS build
 WORKDIR /src
 COPY ["SchoolAPI.csproj", "src/SchoolAPI/"]
 RUN dotnet restore "src/SchoolAPI/SchoolAPI.csproj"
-COPY . .
 WORKDIR "/src/SchoolAPI"
+COPY . .
 RUN dotnet build "SchoolAPI.csproj" -c Release -o /app
 
 FROM build AS publish
