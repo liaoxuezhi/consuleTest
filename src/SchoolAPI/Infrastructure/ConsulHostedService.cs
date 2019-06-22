@@ -49,8 +49,8 @@ namespace SchoolAPI.Infrastructure
                 .Where(a => a.IsIPv6LinkLocal)
                 .ToList();
 
-
             var host2 = NetworkInterface.GetAllNetworkInterfaces()
+              .Where(p => p.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
               .Select(p => p.GetIPProperties())
               .SelectMany(p => p.UnicastAddresses)
               .Where(p => p.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork && !System.Net.IPAddress.IsLoopback(p.Address))
@@ -65,7 +65,15 @@ namespace SchoolAPI.Infrastructure
                 Name = _consulConfig.Value.ServiceName,
                 Address = $"{uri.Scheme}://{host2}",
                 Port = uri.Port,
-                Tags = new[] { "Students", "Courses", "School" }
+                Tags = new[] { "Students", "Courses", "School" },
+                Check = new AgentServiceCheck()
+                {
+                    //Status = HealthStatus.Passing,
+                    DeregisterCriticalServiceAfter = TimeSpan.FromMinutes(1),
+                    HTTP = $"{uri.Scheme}://{host2}:{uri.Port}/health",
+                    Timeout = TimeSpan.FromSeconds(3),
+                    Interval = TimeSpan.FromSeconds(10)
+                }
             };
 
             _logger.LogInformation("Registering in Consul");

@@ -97,6 +97,10 @@ namespace SchoolAPI
                 }
             });
 
+            app.Map("/health", appBulider =>
+             {
+                 appBulider.Run(async context => await context.Response.WriteAsync("health") );
+             });
             app.UseWelcomePage();
         }
     }
