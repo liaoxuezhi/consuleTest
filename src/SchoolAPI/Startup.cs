@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Consul;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,7 +27,6 @@ namespace SchoolAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<DataStore>();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IHostedService, ConsulHostedService>();
             services.Configure<ConsulConfig>(Configuration.GetSection("consulConfig"));
             services.AddSingleton<IConsulClient, ConsulClient>(p => new ConsulClient(consulConfig =>
@@ -62,9 +62,10 @@ namespace SchoolAPI
             });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime lifetime)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime lifetime, IConsulClient consulClient,IHostedService hostedService)
         {
             loggerFactory.AddConsole();
+            var _logger = loggerFactory.CreateLogger<Startup>();
 
             if (env.IsDevelopment())
             {
@@ -81,6 +82,19 @@ namespace SchoolAPI
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "V1 Docs");
+            });
+
+            lifetime.ApplicationStopping.Register(() =>
+            {
+                _logger.LogInformation("Deregistering from Consul");
+                try
+                {
+                    hostedService.StopAsync(new CancellationToken());
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Deregisteration failed");
+                }
             });
 
             app.UseWelcomePage();

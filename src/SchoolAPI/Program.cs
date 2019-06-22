@@ -18,7 +18,7 @@ namespace SchoolAPI
             var freePort = FreeTcpPort();
 
             var host = WebHost.CreateDefaultBuilder(args)
-                .UseUrls($"http://localhost:80")
+                .UseUrls($"http://localhost:8899")
                 .UseStartup<Startup>()
                 .Build();
 
