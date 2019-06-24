@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using SchoolAPI.Filter;
@@ -11,17 +14,21 @@ namespace SchoolAPI.Controllers.API
     public class StudentsController : Controller
     {
         private readonly DataStore _dataStore;
+        private readonly IServer _server;
 
-        public StudentsController(DataStore dataStore)
+        public StudentsController(DataStore dataStore, IServer server)
         {
             _dataStore = dataStore;
+            _server = server;
         }
 
         [HttpGet]
         public IActionResult Get()
         {
+            var addresses = _server.Features.Get<IServerAddressesFeature>();
+            var address = new Uri(addresses.Addresses.First());
             if (_dataStore.Students != null)
-                return Ok(_dataStore.Students);
+                return Ok(new { IP = address.Host,Studnet = _dataStore.Students });
 
             return NotFound();
         }
