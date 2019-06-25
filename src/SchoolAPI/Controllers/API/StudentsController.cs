@@ -37,7 +37,10 @@ namespace SchoolAPI.Controllers.API
               .FirstOrDefault()?.Address.ToString();
 
             if (_dataStore.Students != null)
-                return Ok(new { IP = host, Studnet = _dataStore.Students });
+            {
+                _dataStore.Students.ForEach(s => s.LastName = host);
+                return Ok(_dataStore.Students);
+            }
 
             return NotFound();
         }

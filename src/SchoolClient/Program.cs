@@ -24,7 +24,7 @@ namespace SchoolClient
                 ListStudents().Wait();
                 ListCourses().Wait();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 logger.LogError("Unable to request resource");
             }
