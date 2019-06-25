@@ -57,7 +57,7 @@ namespace SchoolAPI.Infrastructure
               .FirstOrDefault()?.Address.ToString();
 
             var uri = new Uri(address);
-            _registrationID = $"{_consulConfig.Value.ServiceID}-{uri.Port}";
+            _registrationID = Guid.NewGuid().ToString();
 
             var registration = new AgentServiceRegistration()
             {
