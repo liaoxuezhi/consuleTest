@@ -3,10 +3,9 @@ WORKDIR /app
 EXPOSE 8899
 
 FROM microsoft/dotnet:2.2-sdk AS build
-WORKDIR /src
+WORKDIR "/src/SchoolAPI"
 COPY ["SchoolAPI.csproj", "src/SchoolAPI/"]
 RUN dotnet restore "src/SchoolAPI/SchoolAPI.csproj"
-WORKDIR "/src/SchoolAPI"
 COPY . .
 RUN dotnet build "SchoolAPI.csproj" -c Release -o /app
 
