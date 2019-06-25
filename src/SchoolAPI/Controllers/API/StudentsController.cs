@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net.NetworkInformation;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -27,8 +28,16 @@ namespace SchoolAPI.Controllers.API
         {
             var addresses = _server.Features.Get<IServerAddressesFeature>();
             var address = new Uri(addresses.Addresses.First());
+
+            var host = NetworkInterface.GetAllNetworkInterfaces()
+              .Where(p => p.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+              .Select(p => p.GetIPProperties())
+              .SelectMany(p => p.UnicastAddresses)
+              .Where(p => p.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork && !System.Net.IPAddress.IsLoopback(p.Address))
+              .FirstOrDefault()?.Address.ToString();
+
             if (_dataStore.Students != null)
-                return Ok(new { IP = address.Host,Studnet = _dataStore.Students });
+                return Ok(new { IP = host, Studnet = _dataStore.Students });
 
             return NotFound();
         }
