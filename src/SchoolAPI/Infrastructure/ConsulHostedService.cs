@@ -63,7 +63,7 @@ namespace SchoolAPI.Infrastructure
             {
                 ID = _registrationID,
                 Name = _consulConfig.Value.ServiceName,
-                Address = $"{uri.Scheme}://{host2}",
+                Address = $"{uri.Scheme}://{uri.Host}",
                 Port = uri.Port,
                 Tags = new[] { "Students", "Courses", "School" },
                 Check = new AgentServiceCheck()
